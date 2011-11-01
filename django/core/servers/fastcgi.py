@@ -177,10 +177,9 @@ def runfastcgi(argset=[], **kwargs):
         fp.write("%d\n" % os.getpid())
         fp.close()
 
-    WSGIServer(generate_handler(), **wsgi_opts).run()
+    WSGIServer(generate_handler(WSGIHandler()), **wsgi_opts).run()
     
-def generate_handler():
-    handler = WSGIHandler()
+def generate_handler(handler):
     try:
         import newrelic.agent
         newrelic.agent.initialize('/etc/newrelic/newrelic.ini')
