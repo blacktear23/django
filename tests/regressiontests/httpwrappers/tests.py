@@ -1,5 +1,6 @@
 import copy
 import pickle
+from datetime import datetime
 
 from django.http import (QueryDict, HttpResponse, SimpleCookie, BadHeaderError,
         parse_cookie)
@@ -207,6 +208,24 @@ class QueryDictTests(unittest.TestCase):
         self.assertEqual(q.urlencode() , 'sbb=one' )
         self.assertEqual(copy.copy(q).encoding , 'rot_13' )
         self.assertEqual(copy.deepcopy(q).encoding , 'rot_13')
+        
+    def test_query_string_has_too_many_keys(self):
+        print "test_query_string_has_too_many_keys"
+        qstr = self.generate_attack_query_string()
+        print "Query string length: %.3f MB" % (len(qstr)/1024/1024.0)
+        print "Start parse"
+        tstart = datetime.now()
+        q = QueryDict(qstr)
+        tend = datetime.now()
+        print "Finish parse use:" + str(tend - tstart)
+        from django.http.fast_parse_qsl import MAX_PARAMS_KEYS
+        self.assertEquals(MAX_PARAMS_KEYS, len(q.items()))
+    
+    def generate_attack_query_string(self):
+        qstr = "a0=1"
+        for i in range(1, 1097150):
+            qstr += "&a%s=1" % i
+        return qstr
 
 class HttpResponseTests(unittest.TestCase):
     def test_unicode_headers(self):

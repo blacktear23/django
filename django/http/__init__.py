@@ -9,18 +9,19 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-try:
-    # The mod_python version is more efficient, so try importing it first.
-    from mod_python.util import parse_qsl
-except ImportError:
-    try:
-        # Python 2.6 and greater
-        from urlparse import parse_qsl
-    except ImportError:
-        # Python 2.5, 2.4.  Works on Python 2.6 but raises
-        # PendingDeprecationWarning
-        from cgi import parse_qsl
 
+# Now I use fast_parse_qsl for query string parse. 
+# It will be more faster when query string is too long!
+# Test Result:
+#   Query string length: 10.449 MB
+#   Start parse use fast_parse_qsl
+#   Finish parse use:0:00:00.059139
+#   
+#   Start parse use parse_qsl
+#   Finish parse use:0:00:05.784829
+from fast_parse_qsl import parse_qsl
+#from urlparse import parse_qsl
+    
 import Cookie
 # httponly support exists in Python 2.6's Cookie library,
 # but not in Python 2.4 or 2.5.
@@ -331,7 +332,8 @@ class QueryDict(MultiValueDict):
             from django.conf import settings
             encoding = settings.DEFAULT_CHARSET
         self.encoding = encoding
-        for key, value in parse_qsl((query_string or ''), True): # keep_blank_values=True
+        pairs = parse_qsl((query_string or ''), True)
+        for key, value in pairs: # keep_blank_values=True
             self.appendlist(force_unicode(key, encoding, errors='replace'),
                             force_unicode(value, encoding, errors='replace'))
         self._mutable = mutable

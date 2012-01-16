@@ -46,6 +46,7 @@ def get_test_modules():
                 continue
             modules.append((loc, f))
     return modules
+    #return [('regressiontests', 'httpwrappers')]
 
 def get_invalid_modules():
     modules = []
@@ -327,7 +328,7 @@ if __name__ == "__main__":
                       "Set it or use --settings.")
     else:
         options.settings = os.environ['DJANGO_SETTINGS_MODULE']
-
+        
     if options.bisect:
         bisect_tests(options.bisect, options, args)
     elif options.pair:
